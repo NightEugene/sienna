@@ -43,6 +43,8 @@ STATE_LEVEL_COMPLETED = 4
 
 local SETSCALE_COOLDOWN = 0.1
 
+local buttons = require "buttons"
+
 function love.load()
 	loadSettings()
 	loadData()
@@ -60,6 +62,32 @@ function love.load()
 	current_menu = main_menu
 
 	player = Player.create()
+
+	local buttonSize = 50
+	local margin = 10
+
+	if host.isTouchDevice() then
+		buttons:createButton({
+			x = WIDTH/2 - buttonSize/2,
+			y = margin,
+			w = buttonSize,
+			h = buttonSize * 0.5,
+			label = "MENU",
+			rectangle = true,
+			onPress = function ()
+			end,
+			onRelease = function ()
+				if gamestate == STATE_INGAME then
+					gamestate = STATE_INGAME_MENU
+					current_menu = ingame_menu
+					ingame_menu.selected = 1
+				elseif gamestate == STATE_LEVEL_MENU then
+					gamestate = STATE_MAINMENU
+					current_menu = main_menu
+				end
+			end
+		})
+	end
 end
 
 function love.update(dt)
@@ -131,6 +159,7 @@ function love.draw()
 		drawIngame()
 		lg.pop()
 		drawIngameHUD()
+		buttons:draw()
 	elseif gamestate == STATE_INGAME_MENU then
 		lg.push()
 		drawIngame()
@@ -141,6 +170,7 @@ function love.draw()
 		current_menu:draw()
 	elseif gamestate == STATE_LEVEL_MENU then
 		LevelSelection.draw()
+		buttons:draw()
 	elseif gamestate == STATE_LEVEL_COMPLETED then
 		lg.push()
 		drawIngame()
@@ -277,7 +307,11 @@ local touches = {}
 function love.touchpressed(id, x, y)
 	table.insert(touches, {id = id, x = x, y = y})
 	if gamestate == STATE_INGAME then
-		player:keypressed(' ')
+		if not buttons:touchpressed(id, x, y) then
+			player:keypressed(' ')
+		end
+	elseif gamestate == STATE_LEVEL_MENU then
+		buttons:touchpressed(id, x, y)
 	end
 end
 
@@ -293,11 +327,15 @@ function love.touchreleased(id, x, y)
 	end
 	if not ignore then
 		if gamestate == STATE_INGAME then
-			player:keyreleased(' ')
+			if not buttons:touchreleased(id, x, y) then
+				player:keyreleased(' ')
+			end
 		elseif gamestate == STATE_INGAME_MENU or gamestate == STATE_MAINMENU then
 			current_menu:keypressed('return')
 		elseif gamestate == STATE_LEVEL_MENU then
-			LevelSelection.keypressed('return')
+			if not buttons:touchreleased(id, x, y) then
+				LevelSelection.keypressed('return')
+			end
 		elseif gamestate == STATE_LEVEL_COMPLETED then
 			levelCompleted()
 		end
@@ -311,6 +349,10 @@ function love.touchmoved(id, x, y)
 			local yv = y - v.y
 			local axv = math.abs(xv)
 			local ayv = math.abs(yv)
+
+			if gamestate == STATE_INGAME or gamestate == STATE_LEVEL_MENU then
+				buttons:touchreleased(id, v.x, v.y)
+			end
 
 			-- Ignore touchmoves below a certain threshold
 			local threshold = 0.08
