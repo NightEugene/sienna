@@ -367,11 +367,13 @@ function setScale(scale)
 	SCREEN_WIDTH  = WIDTH*SCALE
 	SCREEN_HEIGHT = HEIGHT*SCALE
 
-	love.window.setMode(SCREEN_WIDTH, SCREEN_HEIGHT, {
-		fullscreen=false,
-		vsync=true,
-		borderless = host.isTouchDevice()
-	})
+	if love.system.getOS() ~= "AuroraOS" then
+		love.window.setMode(SCREEN_WIDTH, SCREEN_HEIGHT, {
+			fullscreen=false,
+			vsync=true,
+			borderless = host.isTouchDevice()
+		})
+	end
 end
 
 function setResolution(w,h)
