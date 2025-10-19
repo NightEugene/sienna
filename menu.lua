@@ -197,9 +197,9 @@ function createMenus()
 		lg.setColor(1,1,1,1)
 		for i=1,self.length do
 			if i == self.selected then
-				lg.printf("* "..self.names[i].." *", 123, 59+(i-1)*12, 166, "center")
+				lg.printf("* "..self.names[i].." *", 123*MENU_COEF, 59*MENU_COEF+(i-1)*12, 166, "center")
 			else
-				lg.printf(self.names[i], 123, 59+(i-1)*12, 166, "center")
+				lg.printf(self.names[i], 123*MENU_COEF, 59*MENU_COEF+(i-1)*12, 166, "center")
 			end
 		end
 	end

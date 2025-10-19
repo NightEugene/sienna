@@ -26,9 +26,13 @@ TILEW = 16
 WIDTH = 300
 HEIGHT = 200
 
+MENU_COEF = 1
+
 if love.system.getOS() == "AuroraOS" then
 	local coef = love.graphics.getWidth() / love.graphics.getHeight()
-	WIDTH = HEIGHT * coef
+	local s_width = HEIGHT * coef
+	MENU_COEF = s_width / WIDTH
+	WIDTH = s_width
 end
 
 STATE_MAINMENU = 0
